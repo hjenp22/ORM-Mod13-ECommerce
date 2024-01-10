@@ -10,7 +10,7 @@ Product.belongsTo(Category, {
 }),
 
 // Categories have many Products
-
+test
 // Products belongToMany Tags (through ProductTag)
 
 // Tags belongToMany Products (through ProductTag)
