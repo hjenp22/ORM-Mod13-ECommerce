@@ -1,14 +1,11 @@
 const router = require('express').Router();
 const { Category, Product } = require('../../models');
 
-// The `/api/categories` endpoint
-
+// Get all categories with their associated products
 router.get('/', async (req, res) => {
-  // find all categories
-    // be sure to include its associated Products
-  try{
+  try {
     const categoriesData = await Category.findAll({
-      include: {model: Product},
+      include: { model: Product },
     });
     res.status(200).json(categoriesData);
   } catch (err) {
@@ -16,16 +13,15 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get a single category by ID with its associated products
 router.get('/:id', async (req, res) => {
   try {
-    // find one category by its `id` value
-    // be sure to include its associated Products
     const categoryData = await Category.findByPk(req.params.id, {
       include: [{ model: Product }],
     });
 
     if (!categoryData) {
-      res.status(404).json({ message: "No category with that id" });
+      res.status(404).json({ message: 'No category with that id' });
       return;
     }
 
@@ -35,55 +31,51 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/:id', async (req, res) => {
-  try{
-    const categoryData = await Category.create({...req.body});
+// Create a new category
+router.post('/', async (req, res) => {
+  try {
+    const categoryData = await Category.create(req.body);
+    res.status(201).json(categoryData);
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-module.exports = router;
-
-
+// Update a category by ID
 router.put('/:id', async (req, res) => {
-  // update a category by its `id` value
   try {
     const categoryToUpdate = await Category.findByPk(req.params.id);
 
     if (!categoryToUpdate) {
-      res.status(404).json({ error: 'This Category is not found' });
+      res.status(404).json({ error: 'Category not found' });
       return;
     }
 
-    categoryToUpdate.category_name = req.body.category_name;  // Fix the typo in "category_name"
+    categoryToUpdate.category_name = req.body.category_name;
     await categoryToUpdate.save();
 
-    res.status(200).json({ message: 'Category was successfully updated!', category: categoryToUpdate });
+    res.status(200).json({ message: 'Category successfully updated', category: categoryToUpdate });
   } catch (err) {
-    res.status(500).json({ error: 'There was an error updating category', details: err.message });
+    res.status(500).json({ error: 'Error updating category', details: err.message });
   }
 });
 
+// Delete a category by ID
 router.delete('/:id', async (req, res) => {
-  // delete a category by its `id` value
-  router.delete('/:id', async (req, res) => {
-    try {
-      const categoryToDelete = await Category.findByPk(req.params.id);
-  
-      if (!categoryToDelete) {
-        res.status(404).json({ error: 'This Category is not found' });
-        return;
-      }
-  
-      await categoryToDelete.destroy();
-  
-      res.status(200).json({ message: 'Category was successfully deleted!' });
-    } catch (err) {
-      res.status(500).json({ error: 'There was an error deleting the category', details: err.message });
+  try {
+    const categoryToDelete = await Category.findByPk(req.params.id);
+
+    if (!categoryToDelete) {
+      res.status(404).json({ error: 'Category not found' });
+      return;
     }
-  });
-  
+
+    await categoryToDelete.destroy();
+
+    res.status(204).json({ message: 'Category successfully deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting category', details: err.message });
+  }
 });
 
 module.exports = router;
